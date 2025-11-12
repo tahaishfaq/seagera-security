@@ -19,16 +19,32 @@ export async function POST(request) {
       (await fetchCustomerProfile(loginResult.sid, { email: loginResult.user.email })) ?? null
 
     if (!profile) {
-      return NextResponse.json({ error: 'You are not authorized to access this portal.' }, { status: 403 })
+      return NextResponse.json(
+        { error: 'You are not authorized to access this portal.' },
+        { status: 403 }
+      )
     }
 
+    // ✅ Role check using loginResult.message.roles
+    const userRoles = loginResult.message?.roles ?? []
+    const hasPortalAccess = userRoles.includes('Portal Customer')
+
+    if (!hasPortalAccess) {
+      return NextResponse.json(
+        { error: 'You are not authorized to access this portal.' },
+        { status: 403 }
+      )
+    }
+
+    // Success response
     const response = NextResponse.json({
       authenticated: true,
       user: loginResult.user,
-      profile: profile ?? null,
-      roles: ['Portal Customer'],
+      profile,
+      roles: userRoles,
     })
 
+    // Set session cookie
     response.cookies.set({
       name: getSessionCookieName(),
       value: loginResult.sid,
@@ -36,12 +52,13 @@ export async function POST(request) {
       secure: true,
       sameSite: 'lax',
       path: '/',
-      ...(loginResult.cookieAttributes.maxAge
+      ...(loginResult.cookieAttributes?.maxAge
         ? { maxAge: loginResult.cookieAttributes.maxAge }
-        : loginResult.cookieAttributes.expires
+        : loginResult.cookieAttributes?.expires
         ? { expires: loginResult.cookieAttributes.expires }
         : {}),
     })
+
     return response
   } catch (error) {
     console.error('Login error:', error)
@@ -53,4 +70,3 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }
 }
-
