@@ -66,7 +66,7 @@ export default async function ServiceDetailPage({ params }) {
                 <span className="text-muted-foreground">Price: </span>
                 <span className="font-semibold text-foreground">
                   {service.price
-                    ? Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(service.price)
+                    ? Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(Number(service.price))
                     : "Contact us"}
                 </span>
               </div>

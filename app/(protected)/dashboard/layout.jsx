@@ -2,6 +2,9 @@ import { PortalHeader } from "@/components/portal-header"
 import { PortalSidebar } from "@/components/portal-sidebar"
 import { MobileNav } from "@/components/mobile-nav"
 
+export const dynamic = "force-dynamic"
+export const fetchCache = "force-no-store"
+
 export default function PortalLayout({ children }) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
